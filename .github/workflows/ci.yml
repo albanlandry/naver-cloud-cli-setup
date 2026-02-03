@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  lint-and-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: ShellCheck
+        uses: ludeeus/action-shellcheck@v2
+        with:
+          scandir: scripts
+
+      - name: Setup NCLOUD CLI (dry)
+        uses: ./
+        with:
+          access-key-id: "dummy"
+          secret-access-key: "dummy"
+          export-env: "false"
+
+      - name: Verify CLI binary exists
+        run: |
+          set -e
+          which ncloud
+          ncloud help | head -n 5

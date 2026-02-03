@@ -1,0 +1,69 @@
+name: "Setup NCLOUD CLI"
+description: "Install NCLOUD CLI and configure credentials for CI"
+author: "Alban Landry MOUNGALA"
+
+inputs:
+  access-key-id:
+    description: "NCLOUD Access Key ID"
+    required: true
+  secret-access-key:
+    description: "NCLOUD Secret Access Key"
+    required: true
+  api-url:
+    description: "NCLOUD API Gateway URL"
+    required: false
+    default: "https://ncloud.apigw.ntruss.com"
+  profile:
+    description: "Profile name in ~/.ncloud/configure (e.g., DEFAULT, project)"
+    required: false
+    default: "DEFAULT"
+  download-url:
+    description: "Optional pinned CLI zip URL. If empty, action scrapes the docs page for the latest."
+    required: false
+    default: ""
+  docs-page:
+    description: "Docs page to scrape for latest CLI zip URL"
+    required: false
+    default: "https://cli.ncloud-docs.com/docs/en/guide-clichange"
+  install-root:
+    description: "Install root directory (default: RUNNER_TOOL_CACHE/ncloud-cli)"
+    required: false
+    default: ""
+  export-env:
+    description: "Also export env vars NCLOUD_ACCESS_KEY/NCLOUD_SECRET_KEY/NCLOUD_API_GW"
+    required: false
+    default: "true"
+
+outputs:
+  ncloud-path:
+    description: "Resolved ncloud executable path"
+    value: ${{ steps.install.outputs.ncloud-path }}
+  cli-dir:
+    description: "Directory added to PATH that contains ncloud"
+    value: ${{ steps.install.outputs.cli-dir }}
+  config-path:
+    description: "Path to ~/.ncloud/configure"
+    value: ${{ steps.configure.outputs.config-path }}
+
+runs:
+  using: "composite"
+  steps:
+    - id: install
+      shell: bash
+      run: |
+        set -euo pipefail
+        bash "${{ github.action_path }}/scripts/install.sh" \
+          "${{ inputs.download-url }}" \
+          "${{ inputs.docs-page }}" \
+          "${{ inputs.install-root }}"
+
+    - id: configure
+      shell: bash
+      run: |
+        set -euo pipefail
+        bash "${{ github.action_path }}/scripts/configure.sh" \
+          "${{ inputs.access-key-id }}" \
+          "${{ inputs.secret-access-key }}" \
+          "${{ inputs.api-url }}" \
+          "${{ inputs.profile }}" \
+          "${{ inputs.export-env }}"
