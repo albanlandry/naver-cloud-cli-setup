@@ -52,7 +52,7 @@ Add:
 
 ```yaml
 - name: Setup NCLOUD CLI
-  uses: your-org/setup-ncloud-cli@v1
+  uses: albanlandry/setup-ncloud-cli@v1
   with:
     access-key-id: ${{ secrets.NCLOUD_ACCESS_KEY_ID }}
     secret-access-key: ${{ secrets.NCLOUD_SECRET_ACCESS_KEY }}
