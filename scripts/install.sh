@@ -47,11 +47,18 @@ else
 fi
 
 # Locate cli_linux directory that contains ncloud script (avoid SIGPIPE/broken pipe)
-CLI_LINUX_DIR="$(find "${INSTALL_ROOT}" "${UNPACK_DIR}" -type f -path "*/cli_linux/ncloud" -print -quit | xargs -r dirname || true)"
-if [[ -z "${CLI_LINUX_DIR}" ]]; then
+CLI_NCLOUD_PATH=""
+while IFS= read -r -d '' f; do
+  CLI_NCLOUD_PATH="$f"
+  break
+done < <(find "${INSTALL_ROOT}" "${UNPACK_DIR}" -type f -path "*/cli_linux/ncloud" -print0)
+
+if [[ -z "${CLI_NCLOUD_PATH}" ]]; then
   echo "ERROR: Could not locate cli_linux/ncloud after unzip." >&2
   exit 1
 fi
+
+CLI_LINUX_DIR="$(dirname "${CLI_NCLOUD_PATH}")"
 
 chmod +x "${CLI_LINUX_DIR}/ncloud" || true
 
